@@ -1,0 +1,31 @@
+% 根据是否是从 main.tex 开始编译（全部编译）
+\def\chapterTitle{Title of this chapter}
+\ifx\allfiles\undefined
+  \documentclass[UTF8,a4paper,10pt]{ctexart}
+  \usepackage{../config/mycolor}
+  \usepackage{minted}
+  \begin{document}
+  \title{\chapterTitle}
+  \author{fanhongtao@163.com}
+  \date{\today}
+  \maketitle
+  \pagebreak
+  \tableofcontents
+  \pagebreak
+\else
+  \chapter{\chapterTitle}
+\fi
+
+% 从这里开始是本文件的内容
+\section{Section one}
+
+Content of section one.
+
+\section{Section two}
+
+Content of section two.
+
+% 重复判断是否是从 main.tex 开始编译 
+\ifx\allfiles\undefined
+  \end{document}
+\fi

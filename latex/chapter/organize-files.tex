@@ -1,0 +1,119 @@
+% 根据是否是从 main.tex 开始编译（全部编译）
+\ifx\allfiles\undefined
+  \documentclass[UTF8,a4paper,10pt]{ctexart}
+  \usepackage{../config/mycolor}
+  \usepackage{minted}
+  \begin{document}
+  \title{组织\LaTeX工程}
+  \author{fanhongtao@163.com}
+  \date{2018 年 6 月 12 日}
+  \maketitle
+  \pagebreak
+  \tableofcontents
+  \pagebreak
+\else
+  \chapter{组织\LaTeX工程}
+\fi
+
+% 从这里开始是本文件的内容
+\section{配置文件}
+
+可以将会被多个 .tex 使用的内容放在 配置文件 (.sty) 中。然后在 .tex 文件中引用该配置文件。
+
+如：当我在 Visual Studio Code 中编辑时，就喜欢将 PDF 文档设置成黑底白字，
+以便和 VSC 的颜色相似，这样分屏显示PDF时，就不会因为色差太大而刺眼。具体方法如下。
+
+1、创建一个名为 mycolor.sty 的文件，其内容为：
+
+\begin{minted}[frame=single]{tex}
+  \usepackage{color}
+  \definecolor{bgcolor}{rgb}{0.12,0.12,0.12}
+  \definecolor{fontcolor}{rgb}{0.95,0.95,0.95}
+  \pagecolor{bgcolor}   % set background
+  \color{fontcolor}     % set color for font
+\end{minted}
+
+2、在 .tex 文件中引用 color，并设置背景、字体颜色
+
+\begin{minted}[frame=single]{tex}
+  \documentclass[UTF8,a4paper]{ctexart}
+  \usepackage{mycolor}      % use mycolor.sty
+  \begin{document}
+  Rest content of the article.
+  \end{document}
+\end{minted}
+
+3、当文档编辑完成，定稿之后，再修改 mycolor.sty 中的颜色定义，将其变为白底黑字。
+当然，也可以直接将 mycolor.sty 中的内容注释掉，以达到恢复默认色的效果。
+
+\section{\LaTeX文件如何拆分并进行独立编译}
+
+对于较大的LaTeX文件，需要将其分析成多个 .tex 文件。比如编辑一本书的时候可以将各章独立为chapter1.tex、chapter2.tex、chapter3.tex ……，然后在主文件 main.tex 中包含进来。如：
+\begin{minted}[frame=single]{tex}
+  \documentclass{book}
+  \begin{document}
+  \title{A LaTeX Book}
+  \author{}
+  \date{}
+  \maketitle
+  \include{chapter1}
+  \include{chapter2}
+  \include{chapter3}
+  % include other chapters
+  \end{document}
+\end{minted}
+
+分析后会引入一个新问题：如何让分析后的 chapN.tex 文件即能够被 main.tex 引用，又能够单独编译？
+毕竟，在编写 chapterN.tex 文件时，能单独编译可以直接查看内容是否正确。
+
+解决的办法是：条件编译。即：在 main.tex 中定义一个特殊的值；在 chapterN 中根据是否有该定义写不同的代码。
+
+main.tex 中定义一个特殊值： allfiles。
+
+\begin{minted}[frame=single]{tex}
+  \documentclass{book}
+  \def\allfiles{}   % define 'allfiles'
+  \begin{document}
+  % the rest of content.
+  \end{document}
+\end{minted}
+
+在 chapterN 中判断有无 allfiles 定义。
+
+\begin{minted}[frame=single]{tex}
+  \ifx\allfiles\undefined
+    \documentclass{article}
+    \begin{document}
+    \title{Title of the chapter}
+    % more command for title & toc.
+  \else
+    \chapter{Title of the chapter}
+  \fi
+
+  %
+  % content of the chapter.
+  %
+
+  \ifx\allfiles\undefined
+    \end{document}
+  \if
+\end{minted}
+
+\section{\LaTeX工程}
+
+当要写内容较多时，除了需要将一个 .tex 分拆为多个 .tex 文件，
+还可能涉及到文档中引用的外部图片、参考资料等相关信息，
+有必要将这些内容归类存放，方便维护。
+
+我所使用的方法：
+
+\begin{enumerate}
+  \item 在工程根目录下，创建一个 main.tex ，只负责引用其它 .tex 文件。
+  \item 创建一个 chapter 子目录，将各章节的 .tex 文件放在该目录下。
+  \item 创建一个 picture 子目录，将需要引用的图片统一存放在该目录下。
+\end{enumerate}
+
+% 重复判断是否是从 main.tex 开始编译 
+\ifx\allfiles\undefined
+  \end{document}
+\fi
